@@ -10,18 +10,35 @@
    docker-compose up -d
    docker-compose -f docker-compose-auth.yml up -d
 
-3. Sandboxie-Plus 세팅 (게이밍)
-   - 새 박스 생성: "GamingBox"
-   - 설정 -> File Access -> Direct Access -> Add -> 게임 세이브 경로 입력
-     (예: C:\Users\User\Documents\My Games\*)
+3. 게이밍 & 보안 (Smart Launcher 사용)
+   * 주의: 별도의 Sandboxie 'Direct Access' 설정 불필요 (스크립트가 자동 처리)
+   - 실행: PowerShell에서 `.\SmartGameLauncher.ps1` 실행
+   - 기능: 
+     1. 게임을 샌드박스 격리 공간에서 실행
+     2. 종료 시 세이브 파일만 감지하여 `_Saves_Backup` 폴더로 자동 백업
 
 4. 네트워크 트래픽 분리 규칙 (Split Tunneling)
-   [Cloudflare Tunnel에 등록할 것] -> 도메인으로 접속 (komga.michboy.xyz)
+   [A] Cloudflare Tunnel에 등록할 것 -> 도메인으로 접속 (komga.michboy.xyz)
    - Komga (localhost:8080)
    - Grafana (localhost:3001)
    - Portainer (localhost:9000)
    - AdGuard (localhost:3000)
 
-   [Tailscale로 접속할 것] -> IP로 접속 (100.x.y.z:8096)
-   - Jellyfin (영상 스트리밍 대역폭 문제)
-   - Sunshine/Moonlight (게임 레이턴시 문제)
+   [B] Tailscale로 접속할 것 -> IP로 접속 (100.x.y.z:8096)
+   - Jellyfin (영상 스트리밍 대역폭 확보 및 약관 준수)
+   - Sunshine/Moonlight (실시간 게이밍 레이턴시 최적화)
+
+---
+## 🚧 주의사항 및 개발 현황 (Disclaimer)
+이 프로젝트는 현재 **개발 진행 중(Work In Progress)**입니다.
+
+1. **폴더 구조 및 미디어 동기화**: 
+   - `media/music`, `games` 등의 세부 폴더 생성은 자동화되어 있지 않습니다.
+   - 음악용 디바이스 및 기타 기기와의 동기화 설정은 사용자의 환경에 맞춰 별도로 진행해야 합니다.
+   
+2. **포맷 및 표준화**:
+   - 파일 포맷 통일 작업이 진행 중이며, 일부 설정은 레거시(Legacy) 방식일 수 있습니다.
+
+3. **안정성**:
+   - 코드가 부분적으로 리팩토링 및 수정된 상태이므로, 기능 검증이 필요할 수 있습니다.
+   - 사용 시 본인의 환경에 맞게 `docker-compose.yml` 및 `.env` 파일의 2차 검증을 권장합니다.
