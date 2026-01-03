@@ -90,7 +90,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
     ports:
-      - "9400:9000"  # 포트 충돌 방지 (Authentik 9000과 겹칠 수 있어 9400으로 변경)
+      - "9400:9000"
     networks:
       - server_network
 
@@ -115,7 +115,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - PASSWORD=password  # .env에서 불러오게 수정 권장
+      - PASSWORD=${CODE_PASS} # 보안을 위해 .env 변수로 변경함 (기존: password)
     volumes:
       - ./data/code-server:/config
       - C:/Server/projects:/home/coder/projects
@@ -133,6 +133,17 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "80:3000"
+    networks:
+      - server_network
+
+  # --- [5. 외부 접속 (New!)] ---
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TOKEN}
     networks:
       - server_network
 
