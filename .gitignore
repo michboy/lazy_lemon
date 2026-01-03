@@ -1,0 +1,41 @@
+# --- [1] 보안 (Security) - 절대 업로드 금지 ---
+.env
+*.key
+*.pem
+*.cert
+id_rsa
+id_rsa.pub
+**/.ssh/
+**/secrets/
+
+# --- [2] 대용량 미디어 및 게임 (Bloatware) ---
+games/
+media/
+comics/
+0_Installers/
+_Saves_Backup/
+
+# --- [3] 런타임 데이터 & 데이터베이스 (Runtime Data) ---
+# 설정 파일 껍데기(template)는 올려야 하지만, 실제 DB는 빼야 함
+*.db
+*.sqlite
+*.log
+*.pid
+
+# 도커 볼륨 데이터 통째로 제외 (가장 안전)
+1_Server_Config/data/
+
+# --- [4] 개인 프로젝트 (Private) ---
+2_Cpp_Project/
+projects/
+
+# --- [5] 빌드 부산물 & 시스템 파일 ---
+*.exe
+*.msi
+*.7z
+*.zip
+*.obj
+*.dll
+*.iso
+Thumbs.db
+.DS_Store

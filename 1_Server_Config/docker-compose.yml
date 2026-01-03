@@ -1,0 +1,142 @@
+version: '3.8'
+
+networks:
+  server_network:
+    external: true
+
+services:
+  # --- [1. 콘텐츠 & 미디어] ---
+  komga:
+    image: gotson/komga
+    container_name: komga
+    restart: unless-stopped
+    volumes:
+      - ./data/komga:/config
+      - C:/Server/comics:/data
+    ports:
+      - "8080:8080"
+    environment:
+      - JAVA_OPTS=-Xmx4g
+    networks:
+      - server_network
+
+  jellyfin:
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    restart: unless-stopped
+    volumes:
+      - ./data/jellyfin:/config
+      - C:/Server/media:/media
+    ports:
+      - "8096:8096"
+    networks:
+      - server_network
+
+  adguard:
+    image: adguard/adguardhome
+    container_name: adguard
+    restart: unless-stopped
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "3000:3000/tcp"
+    volumes:
+      - ./data/adguard/work:/opt/adguardhome/work
+      - ./data/adguard/conf:/opt/adguardhome/conf
+    networks:
+      - server_network
+
+  # --- [2. 모니터링 시스템] ---
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    networks:
+      - server_network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - server_network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASS}
+    networks:
+      - server_network
+
+  # --- [3. 관리 도구] ---
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    ports:
+      - "9400:9000"  # 포트 충돌 방지 (Authentik 9000과 겹칠 수 있어 9400으로 변경)
+    networks:
+      - server_network
+
+  # --- [4. 유틸리티] ---
+  filebrowser:
+    image: filebrowser/filebrowser
+    container_name: filebrowser
+    restart: unless-stopped
+    volumes:
+      - ./data/filebrowser/filebrowser.db:/database.db
+      - ./data/filebrowser/settings.json:/.filebrowser.json
+      - C:/Server:/srv
+    ports:
+      - "8081:80"
+    networks:
+      - server_network
+
+  code-server:
+    image: lscr.io/linuxserver/code-server:latest
+    container_name: code-server
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - PASSWORD=password  # .env에서 불러오게 수정 권장
+    volumes:
+      - ./data/code-server:/config
+      - C:/Server/projects:/home/coder/projects
+    ports:
+      - "8443:8443"
+    networks:
+      - server_network
+
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    restart: unless-stopped
+    volumes:
+      - ./data/homepage:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "80:3000"
+    networks:
+      - server_network
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  portainer_data:

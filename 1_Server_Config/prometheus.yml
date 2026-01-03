@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'n150-server'
+    static_configs:
+      - targets: ['node-exporter:9100'] # Docker 내부 통신
